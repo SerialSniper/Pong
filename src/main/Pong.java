@@ -6,6 +6,8 @@ import static org.lwjgl.opengl.GL11.glClear;
 import entities.Ball;
 import entities.Paddle;
 import entities.Paddle.Side;
+import entities.PaddleAI;
+import enums.Difficulty;
 import io.Input;
 import io.Window;
 import models.Field;
@@ -18,10 +20,10 @@ public class Pong extends Window implements Runnable {
 
 	Field field;
 	Paddle player1;
-	Paddle player2;
-	Ball ball;
+	PaddleAI player2;
+	public Ball ball;
 	
-	public Pong() {
+	public Pong(Difficulty difficulty) {
 		super("Pong", 800, 450);
 		setFullscreen(false);
 		create();
@@ -32,7 +34,8 @@ public class Pong extends Window implements Runnable {
 		
 		field = new Field(getWidth(), getHeight());
 		player1 = new Paddle(field, Side.RIGHT);
-		player2 = new Paddle(field, Side.LEFT);
+//		player2 = new Paddle(field, Side.LEFT);
+		player2 = new PaddleAI(field, difficulty);
 		ball = new Ball(field, player1, player2);
 		
 		new Thread(this).start();
@@ -60,6 +63,8 @@ public class Pong extends Window implements Runnable {
 	public void run() {
 		while(true) {
 			ball.tick();
+			player1.tick();
+			player2.tick();
 			Input.keyboard.keyLoop();
 			
 			try {
@@ -75,6 +80,10 @@ public class Pong extends Window implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		new Pong();
+		Difficulty diff;
+		if(args.length > 0 && (diff = Difficulty.valueOf(args[0].toUpperCase())) != null)
+			new Pong(diff);
+		else
+			new Pong(Difficulty.NORMAL);
 	}
 }

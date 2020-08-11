@@ -12,9 +12,10 @@ import models.Field;
 import render.Texture;
 
 public class Paddle extends Entity implements InputCallback {
-	private static int distance = 50;
+	public static int distance = 50;
 	private static int speed = 1;
 	private Field field;
+	private int goals = 0;
 	
 	public static enum Side {
 		RIGHT(Pong.getInstance().getWidth() / 2 - distance, Controls.UDLR),
@@ -47,7 +48,24 @@ public class Paddle extends Entity implements InputCallback {
 		
 		Input.addListener(this);
 	}
-
+	
+	public void addGoal() {
+		goals++;
+	}
+	
+	public void tick() {
+		if(collides(field)) {
+			int y = Pong.getInstance().getHeight() / 2 - getRect().getHeight() / 2;
+			
+			if(Math.round(getRect().getY()) < 0)
+				y *= -1;
+			
+			getRect().setY(y);
+		}
+	}
+	
+	public int getGoals() { return goals; }
+	
 	@Override
 	public void onKeyPress(int key, int action) {}
 
@@ -60,14 +78,5 @@ public class Paddle extends Entity implements InputCallback {
 			move(Direction.NORTH, speed);
 		else if(key == side.getControls().getKey(Controls.DOWN))
 			move(Direction.SOUTH, speed);
-		
-		if(collides(field)) {
-			int y = Pong.getInstance().getHeight() / 2 - getRect().getHeight() / 2;
-			
-			if(Math.round(getRect().getY()) < 0)
-				y *= -1;
-			
-			getRect().setY(y);
-		}
 	}
 }

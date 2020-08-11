@@ -1,14 +1,16 @@
 package main;
 
+import java.awt.Point;
+
 public class Rect {
 	public enum Edge { TOP, BOTTOM, LEFT, RIGHT }
 	public enum Vertex { TOP_LEFT, TOP_RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT }
-	private float x, y;
+	private float x, y, initial_x, initial_y;
 	private int width, height;
 	
 	public Rect(int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
+		this.initial_x = (this.x = x);
+		this.initial_y = (this.y = y);
 		this.width = width;
 		this.height = height;
 	}
@@ -29,6 +31,17 @@ public class Rect {
 		this.y = y;
 	}
 	
+	public void setPosition(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	public void resetPosition() {
+		this.x = initial_x;
+		this.y = initial_y;
+	}
+	
+	public Point getPosition() { return new Point((int)x, (int)y); }
 	public int getWidth() { return width; }
 	public int getHeight() { return height; }
 	public int getX() { return (int)x; }
@@ -73,14 +86,4 @@ public class Rect {
 			getFloatEdge(Edge.LEFT), getFloatEdge(Edge.BOTTOM)
 		};
 	}
-	
-//	public Point getVertex(Vertex vertex) {
-//		switch(vertex) {
-//			case TOP_LEFT: return new Point(getEdge(Edge.LEFT), getEdge(Edge.TOP));
-//			case TOP_RIGHT: return new Point(getEdge(Edge.RIGHT), getEdge(Edge.TOP));
-//			case BOTTOM_RIGHT: return new Point(getEdge(Edge.RIGHT), getEdge(Edge.BOTTOM));
-//			case BOTTOM_LEFT: return new Point(getEdge(Edge.LEFT), getEdge(Edge.BOTTOM));
-//			default: throw new IllegalStateException("Vertex must be an enum value");
-//		}
-//	}
 }

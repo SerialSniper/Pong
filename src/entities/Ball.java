@@ -1,7 +1,6 @@
 package entities;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
@@ -11,6 +10,7 @@ import enums.Solid;
 import io.Input;
 import io.InputCallback;
 import main.Entity;
+import main.Pong;
 import main.Rect;
 import models.Field;
 import render.Texture;
@@ -42,8 +42,13 @@ public class Ball extends Entity implements InputCallback {
 			bounce(player1);
 		if(collides(player2))
 			bounce(player2);
-		if(collides(field))
+		if(collides(field)) {
+			if(getRect().getX() < -(Pong.getInstance().getWidth() / 2 - Paddle.distance))
+				reset(player2);
+			if(getRect().getX() > Pong.getInstance().getWidth() / 2 - Paddle.distance)
+				reset(player1);
 			bounce();
+		}
 	}
 	
 	private void bounce() {
@@ -72,6 +77,15 @@ public class Ball extends Entity implements InputCallback {
 		directionY = (float)Math.sin(degrees * Math.PI / 180);
 	}
 	
+	private void reset(Paddle player) {
+		started = false;
+		getRect().resetPosition();
+		player1.getRect().resetPosition();
+		player2.getRect().resetPosition();
+		
+		player.addGoal();
+	}
+	
 	public void setStarted(boolean started) {
 		this.started = started;
 	}
@@ -80,12 +94,6 @@ public class Ball extends Entity implements InputCallback {
 	public void onKeyPress(int key, int action) {
 		if(key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_W || key == GLFW_KEY_S)
 			start();
-		if(key == GLFW_KEY_R) {
-			started = false;
-			getRect().setX(0);
-			getRect().setY(0);
-			start();
-		}
 	}
 
 	@Override
