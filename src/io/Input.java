@@ -46,8 +46,10 @@ public class Input {
 		
 		@Override
 		public void invoke(long window, int key, int scancode, int action, int mods) {
+			if(key == -1)
+				return;
 			keys[key] = action == 1 || action == 2;
-			if(action == GLFW_PRESS)
+			if(action == GLFW_PRESS && key != -1)
 				listeners.forEach(x -> x.onKeyPress(key, action));
 		}
 	}

@@ -1,34 +1,17 @@
 package io;
 
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.stb.STBImage.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL;
+import java.nio.*;
+
+import org.lwjgl.glfw.*;
+import org.lwjgl.opengl.*;
+
+import gui.*;
+import main.*;
 
 public class Window implements InputCallback {
 	private long window;
@@ -36,6 +19,8 @@ public class Window implements InputCallback {
 	private String title;
 	private boolean fullscreen = false;
 	private GLFWVidMode videoMode;
+	
+	private Font font;
 	
 	public Window(String title, int width, int height) {
 		this.title = title;
@@ -68,14 +53,53 @@ public class Window implements InputCallback {
 		
 		glfwMakeContextCurrent(window);
 		GL.createCapabilities();
-		glEnable(GL_TEXTURE_2D);
 		
 		orthoInit();
+		
+		setIcon();
 		
 		glfwShowWindow(window);
 		
 		Input.init(this);
 		Input.addListener(this);
+
+		font = new Font(this, "font");
+	}
+	
+	private void setIcon() {
+		ByteBuffer icon16, icon32;
+		try {
+		    icon16 = IOUtil.ioResourceToByteBuffer("res/icon16.png", 2048);
+		    icon32 = IOUtil.ioResourceToByteBuffer("res/icon32.png", 4096);
+		} catch (Exception e) {
+		    throw new RuntimeException(e);
+		}
+		
+		IntBuffer w = memAllocInt(1);
+		IntBuffer h = memAllocInt(1);
+		IntBuffer comp = memAllocInt(1);
+		
+		try(GLFWImage.Buffer icons = GLFWImage.malloc(2)) {
+		    ByteBuffer pixels16 = stbi_load_from_memory(icon16, w, h, comp, 4);
+		    icons
+		        .position(0)
+		        .width(w.get(0))
+		        .height(h.get(0))
+		        .pixels(pixels16);
+		    
+		    ByteBuffer pixels32 = stbi_load_from_memory(icon32, w, h, comp, 4);
+		    icons
+		        .position(1)
+		        .width(w.get(0))
+		        .height(h.get(0))
+		        .pixels(pixels32);
+		    
+		    icons.position(0);
+		    glfwSetWindowIcon(window, icons);
+		    
+		    stbi_image_free(pixels32);
+		    stbi_image_free(pixels16);
+		}
 	}
 	
 	public static void setCallbacks() {
@@ -126,6 +150,7 @@ public class Window implements InputCallback {
 	public long getWindow() { return window; }
 	public int getWidth() { return width; }
 	public int getHeight() { return height; }
+	public Font getFont() { return font; }
 	
 	@Override
 	public void onKeyPress(int key, int action) {
@@ -137,6 +162,9 @@ public class Window implements InputCallback {
 			case GLFW_KEY_F11:
 				switchFullscreen();
 				break;
+				
+			case GLFW_KEY_F3:
+				Pong.getInstance().getCurrentLevel().getDebugScreen().toggleActive();
 		}
 	}
 

@@ -1,27 +1,14 @@
 package main;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.*;
 
-import entities.Ball;
-import entities.Paddle;
-import entities.Paddle.Side;
-import entities.PaddleAI;
-import enums.Difficulty;
-import io.Input;
-import io.Window;
-import models.Field;
-import render.Shader;
+import enums.*;
+import io.*;
 
 public class Pong extends Window implements Runnable {
 	public static Pong instance;
-	public static Shader shader;
-	public static int scale = 64, gameLoopInterval = 1;
-
-	Field field;
-	Paddle player1;
-	PaddleAI player2;
-	public Ball ball;
+	private int gameLoopInterval = 1;
+	Level level;
 	
 	public Pong(Difficulty difficulty) {
 		super("Pong", 800, 450);
@@ -29,55 +16,41 @@ public class Pong extends Window implements Runnable {
 		create();
 		setCallbacks();
 		
-		instance = this;
-		shader = new Shader("shader");
+		new Discord().updatePresence();
 		
-		field = new Field(getWidth(), getHeight());
-		player1 = new Paddle(field, Side.RIGHT);
-//		player2 = new Paddle(field, Side.LEFT);
-		player2 = new PaddleAI(field, difficulty);
-		ball = new Ball(field, player1, player2);
+		level = new Level(this);
+		instance = this;
 		
 		new Thread(this).start();
 		
 		while(!shouldClose()) {
-			super.update();
+			update();
 			glClear(GL_COLOR_BUFFER_BIT);
 			
-//			shader.bind();
-//			shader.setUniform("sampler", 0);
+			level.render();
 			
-			player1.render();
-			player2.render();
-			
-			ball.render();
-			
-			super.swapBuffers();
+			swapBuffers();
 		}
 		
 //		glfwTerminate();
+		level.destroy();
 		System.exit(0);
 	}
 	
 	@Override
 	public void run() {
 		while(true) {
-			ball.tick();
-			player1.tick();
-			player2.tick();
+			level.tick();
 			Input.keyboard.keyLoop();
 			
 			try {
 				Thread.sleep(gameLoopInterval);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) {}
 		}
 	}
 	
-	public static Pong getInstance() {
-		return instance;
-	}
+	public static Pong getInstance() { return instance; }
+	public Level getCurrentLevel() { return level; }
 	
 	public static void main(String[] args) {
 		Difficulty diff;

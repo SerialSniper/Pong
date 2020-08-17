@@ -20,15 +20,6 @@
 	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-glfw-natives-windows.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-glfw-sources.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-glfw.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-linux-arm32.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-linux-arm64.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-linux.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-macos.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-windows-x86.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-windows.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-sources.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-opengl-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-opengl-natives-linux-arm32.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-opengl-natives-linux-arm64.jar"/>
@@ -57,5 +48,17 @@
 	<classpathentry kind="lib" path="lib/lwjgl/joml-1.9.19-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/joml-1.9.19-sources.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl/joml-1.9.19.jar"/>
+	<classpathentry kind="lib" path="lib/discord/discord-rpc.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.3/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-linux-arm32.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-linux-arm64.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-linux.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-macos.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-windows-x86.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-natives-windows.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal-sources.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl/lwjgl-openal.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.3/jar/lwjgl.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,104 +1,99 @@
 package entities;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import io.*;
+import main.*;
+import templates.*;
 
-import entities.Paddle.Side;
-import enums.Solid;
-import io.Input;
-import io.InputCallback;
-import main.Entity;
-import main.Pong;
-import main.Rect;
-import models.Field;
-import render.Texture;
-
-public class Ball extends Entity implements InputCallback {
-	private boolean started;
+public class Ball extends Entity {
 	private float directionX, directionY;
-	private static float speed = 0.5f;
-	private Field field;
-	private Paddle player1, player2;
+	private static final float acceleration = 0.0001f;
+	private float speed;
+	private Paddle leftPaddle, rightPaddle;
 	
-	public Ball(Field field, Paddle player1, Paddle player2) {
-		super(new Rect(0, 0, 10, 10), new Texture("paddle"), Solid.SOLID);
+	public Ball(Level level) {
+		super(level);
+		init();
 		
-		this.field = field;
-		this.player1 = player1;
-		this.player2 = player2;
-		this.started = false;
-		
-		Input.addListener(this);
+		this.leftPaddle = level.getLeftPaddle();
+		this.rightPaddle = level.getRightPaddle();
 	}
 	
+	public float getSpeed() {
+		return speed;
+	}
+	
+	public float getAcceleration() {
+		return acceleration;
+	}
+
+	@Override
+	public void init() {
+		setAABB(new AABB(0, 0, 10, 10));
+		speed = 0.5f;
+	}
+	
+	@Override
 	public void tick() {
-		if(!started) return;
+		if(!getLevel().isStarted()) return;
 		
 		move(directionX * speed, directionY * speed);
+		speed += acceleration;
 		
-		if(collides(player1))
-			bounce(player1);
-		if(collides(player2))
-			bounce(player2);
-		if(collides(field)) {
-			if(getRect().getX() < -(Pong.getInstance().getWidth() / 2 - Paddle.distance))
-				reset(player2);
-			if(getRect().getX() > Pong.getInstance().getWidth() / 2 - Paddle.distance)
-				reset(player1);
-			bounce();
+		if(getCollision(rightPaddle).isColliding())
+			bounce(rightPaddle);
+		if(getCollision(leftPaddle).isColliding())
+			bounce(leftPaddle);
+		
+		Collision c = getCollision(getLevel());
+		if(c.isColliding()) {
+			switch(c.getSecondEdge()) {
+				case RIGHT:
+					getLevel().goal(leftPaddle);
+					break;
+					
+				case LEFT:
+					getLevel().goal(rightPaddle);
+					break;
+					
+				default:
+					bounce();
+					break;
+			}
 		}
+	}
+
+	@Override
+	public void destroy() {
+		
 	}
 	
 	private void bounce() {
 		directionY *= -1;
+		
+		getLevel().getSFX().play("wall");
 	}
 	
 	private void bounce(Paddle player) {
-		int y = getRect().getY();
-		int playerY = player.getRect().getY();
-		int degrees = (y - playerY);
+		float y = getAABB().getY();
+		float playerY = player.getAABB().getY();
+		int degrees = (int)(y - playerY);
 
 		directionX = (float)Math.cos(degrees * Math.PI / 180);
 		directionY = (float)Math.sin(degrees * Math.PI / 180);
 		
-		if(player.side == Side.RIGHT)
+		if(player instanceof RightPaddle)
 			directionX *= -1;
+		
+		getLevel().getSFX().play("paddle");
 	}
 	
-	private void start() {
-		if(started) return;
-		started = true;
+	public void start() {
+		if(getLevel().isStarted()) return;
+		getLevel().start();
 		
 		boolean left = (boolean)(Math.round(Math.random()) > 0);
 		int degrees = (int)(Math.random() * 90) + (left ? 180 : 0) - 45;
 		directionX = (float)Math.cos(degrees * Math.PI / 180);
 		directionY = (float)Math.sin(degrees * Math.PI / 180);
 	}
-	
-	private void reset(Paddle player) {
-		started = false;
-		getRect().resetPosition();
-		player1.getRect().resetPosition();
-		player2.getRect().resetPosition();
-		
-		player.addGoal();
-	}
-	
-	public void setStarted(boolean started) {
-		this.started = started;
-	}
-
-	@Override
-	public void onKeyPress(int key, int action) {
-		if(key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_W || key == GLFW_KEY_S)
-			start();
-	}
-
-	@Override
-	public void onMousePress(int button, int action) {}
-
-	@Override
-	public void onKeyHeld(int key) {}
 }
